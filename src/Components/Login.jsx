@@ -39,9 +39,6 @@ const Login = () => {
           xs={10}
           sm={10}
           md={5}
-          // justifyContent="center"
-          // alignSelf="center"
-          // textAlign="center"
         >     
           <Login_UI />
         </Grid>

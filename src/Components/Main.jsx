@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Grid, Paper } from '@mui/material';
+import { Grid, Paper, Typography } from '@mui/material';
 import socket from '../logic/socketIO';
 import { useEffect } from 'react';
 import { List } from '@mui/material';
@@ -25,50 +25,49 @@ const useStyles = makeStyles({
 
 const Main = () => {
     const classes = useStyles();
-    //states
-    const [userName, setuserName] = useState(false);
+    const [myself,setMyself] = useState();
     const [name, setName] = useState("")
+    const [to_user, setTo_user] = useState();
     const [id, setid] = useState(0);
     const [usrL, setusrL] = useState([]);
-    const openChat=(myname,myid)=>{
-        setName(myname);
-        setid(myid);
-  
+    const openChat=(user)=>{
+        setTo_user(user);
+        setName(user.username);
+        setid(user._id);
+        //join room 
+        socket.on("joinRoom",{})
+
     }
-    useEffect(() => {
-    //   first
-    socket.on("users", async (users) => { 
-                setusrL(users);
-                console.log(users);
+
+    socket.on("users",  (users) => { 
+        if(users.length !== 0)
+            setusrL(users);
+               
         }
    )  
-        socket.on("user connected",async (user)=>{
-                
-                
-                setusrL([...usrL,user]);
-                console.log("on user connection ");
-                console.log(usrL);
-                console.log("a user connection" + user.username);
-        })
-    }, [socket])
-    
+    socket.on("user connected",(user)=>{            
+        setusrL([...usrL,user]);
+    })
 
     return(
     <Grid container >
         <Grid item  xs={0} sm={0} md={3}>            
             <Paper spacing={2} className={classes.container} sx={{ borderRadius:"0px", width:'100%',maxHeight: '100vh',overflow: 'auto'}}>  
-                  {usrL.map((user)=>{
-                      return (
-                        <List>
-                            <UserBox message={"Hello this muhammad ahsan  "} name={user.username} openChat={openChat}/>
-                        </List>         
-                      )
+            <Typography variant={"h4"} component={"div"} m={"5px"} >{JSON.parse(localStorage.user).userName.toUpperCase()}</Typography>
+                  {usrL.map((user) => {
+                     
+                     if(user.userID !== socket.id)
+                        return (
+                            <List>
+                                <UserBox message={"*********"} chat_user={user}  name={user.username} openChat={openChat}/>
+                            </List>         
+                        )
                   })}
-
                 </Paper>
             </Grid>   
             <Grid item xs={9} sm={9} md={9}>
-                <ChatBox id={id} username={name} />
+                {/* to user is the user to which we will send the message */}
+                <ChatBox id={id} username={name} me={""} to_user={to_user} />
             </Grid>
         </Grid>
             
